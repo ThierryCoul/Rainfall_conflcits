@@ -1,5 +1,5 @@
 **** Using the dataset for the regression analsyses
-	use regression_file_CHIRPS_precipitation, clear
+	use regression_file_annually, clear
 	*use replication_file_annually, clear
 	
 	xtset GID_1_encoded year
@@ -131,7 +131,7 @@
 	outreg2 using "../../Manuscript/Regression_alternative_yearly_2.doc", append ctitle(Model 12 - countryonset) label addtext(Year FE, YES, Month FE, YES, Country FE, YES)
 
 **** Reload the dataset at the regional level
-	use regression_file_CHIRPS_precipitation, clear
+	use regression_file_annually, clear
 
 
 	

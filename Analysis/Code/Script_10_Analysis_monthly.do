@@ -1,6 +1,5 @@
 ****Loading the data
-	use regression_file_CHIRPS_precipitation_monthly, clear
-	*use replication_file_monthly, clear
+	use regression_file_monthly, clear
 	xtset GID_1_encoded time_id
 	
 ****Hausman test
@@ -131,7 +130,7 @@
 	outreg2 using "../../Manuscript/Regression_alternative_monthly_2.doc", append ctitle(Model 12 - country onset) label addtext(Time FE, YES, Country FE, YES)
 
 **** Reloading the data at the regional level
-	use regression_file_CHIRPS_precipitation_monthly, clear
+	use regression_file_monthly, clear
 
 *******************************************************************	
 *Figure 1: Regressions with leads and lags of rainfall observations
@@ -178,7 +177,7 @@
 *************************************************************************
 
 ****Loading the data
-	use regression_file_CHIRPS_precipitation_monthly, clear
+	use regression_file_monthly, clear
 
 ****Keep regions where at least one conflict occured
 	bysort iso_encoded: egen conflict_variation= mean(conflict_incidence)
@@ -204,7 +203,7 @@
 	export excel "Conflict_avoided.xlsx", replace firstrow(variables)
 
 **** Reloading the data at the regional level
-	use regression_file_CHIRPS_precipitation_monthly, clear
+	use regression_file_monthly, clear
 
 	
 	

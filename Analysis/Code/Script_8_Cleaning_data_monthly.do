@@ -158,7 +158,7 @@ global wd_climate "`disk'"
 	drop if obs_count < 396
 
 ****Saving the intermediary file
-	save regression_file_CHIRPS_precipitation_monthly, replace
+	save regression_file_monthly, replace
 	
 ****Merging ACLED dataset
 /* Download the ACLED data and input in the Output foder to run this part of the code 
@@ -172,7 +172,7 @@ global wd_climate "`disk'"
 
 	collapse (mean) fatalities data_id, by(GID_1 year month)
 	save ACLED_dta_GID_month, replace
-	use regression_file_CHIRPS_precipitation_monthly.dta, clear
+	use regression_file_monthly.dta, clear
 	merge 1:1 GID_1 year month using ACLED_dta_GID_month.dta
 	drop if _merge ==2
 	replace data_id = 0 if missing(data_id) & year >1996
@@ -222,4 +222,4 @@ global wd_climate "`disk'"
 	tab GEO, gen(Continent_)
 
 ****Saving the dataset
-	save regression_file_CHIRPS_precipitation_monthly, replace
+	save regression_file_monthly, replace

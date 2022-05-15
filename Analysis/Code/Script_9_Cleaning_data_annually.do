@@ -160,7 +160,7 @@ global wd_climate "`disk'"
 	}
 	
 ****Saving the intermediary file
-	save regression_file_CHIRPS_precipitation, replace
+	save regression_file_annually, replace
 	
 ****Merging ACLED dataset
 /* Download the ACLED data and input in the Output foder to run this part of the code 
@@ -186,7 +186,7 @@ global wd_climate "`disk'"
 	save ACLED_dta_GID_year, replace
 	
 	* Using the main panel data
-	use regression_file_CHIRPS_precipitation.dta, clear
+	use regression_file_annually.dta, clear
 	
 	* Merging the main panel data with the intermediary file
 	merge 1:1 GID_1 year using ACLED_dta_GID_year.dta
@@ -270,4 +270,4 @@ global wd_climate "`disk'"
 	tab GEO, gen(Continent_)
 
 ****Saving the dataset for regressions at the yearly level
-	save regression_file_CHIRPS_precipitation, replace
+	save regression_file_annually, replace
