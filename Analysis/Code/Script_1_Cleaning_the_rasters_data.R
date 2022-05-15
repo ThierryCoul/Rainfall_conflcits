@@ -1,5 +1,4 @@
 ## Importing libraries -------
-library(svDialogs)
 library(sp)
 library(raster) # package for raster manipulation
 library(rgdal) # package for geospatial analysis
