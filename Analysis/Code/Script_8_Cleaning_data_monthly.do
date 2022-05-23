@@ -109,7 +109,7 @@ global wd_climate "`disk'"
 	* Labeling variables
 	label var z_Level "standardised values of Level per GID_1"
 	
-****Merge the HDI data with the conflicts data	
+****Merging the HDI data with the conflicts data	
 	merge m:1 GID_1 year using HDI_data
 	drop if _merge==2
 	drop _merge
@@ -123,10 +123,10 @@ global wd_climate "`disk'"
 ****Encoding countries for cluster analyses
 	encode iso, gen (iso_encoded)
 
-****Number of non-state conflicts
+****Generating a number of non-state conflicts
 	gen number_of_conflict = conflict_incidence
 	
-****Conflict incidence	
+****Generating a conflict incidence variable	
 	foreach var in conflict_incidence conflict_incidence_any {
 		replace `var' = 1 if `var' > 0
 		if "`var'" =="conflict_incidence_any" {
@@ -152,7 +152,7 @@ global wd_climate "`disk'"
 			by GID_1_encoded (year), sort: replace onset`suffix' = 1 if `var'==1 & peace_years`suffix'[_n-1] >= 2 
 	}
 	
-****Drop regions with unbalanced observations across the years 
+****Dropping regions with unbalanced observations across the years 
 	by GID_1_encoded (time_id), sort: gen obs_count = _N
 	tab GID_1 if obs_count < 396
 	drop if obs_count < 396
@@ -192,12 +192,13 @@ global wd_climate "`disk'"
 	drop _merge peace_years_ACLED
 */
 
-****Merge data with GNI at the country levels
+****Merging data with GNI at the country levels
 	merge m:1 iso year using GNI_per_capita_country
 	drop if _merge==2
 	drop _merge
 	gen ln_GNI_per_capita = ln(GNI_per_capita)
-****Formating the variables as panel data
+	
+****Formating the dataset as panel data
 	egen time_id = group(year month)
 	xtset GID_1_encoded time_id
 	
@@ -205,7 +206,7 @@ global wd_climate "`disk'"
 *Cleaning the final data
 *************************
 	
-***Display the number of conflict by GEO
+***Displaying the number of conflict by GEO
 	levelsof GEO, local(levels)
 	foreach l of local levels {
 	display "`l' Conflict incidences"
@@ -216,7 +217,7 @@ global wd_climate "`disk'"
 	di r(mean)*r(N)
 	}
 
-****Drop Europe and Ocenia because there are too few number of conflicts
+****Dropping Europe and Ocenia because there are too few number of conflicts
 	drop if GEO =="Europe" | GEO=="Oceania"
 	* create a dummy variable for every country
 	tab GEO, gen(Continent_)

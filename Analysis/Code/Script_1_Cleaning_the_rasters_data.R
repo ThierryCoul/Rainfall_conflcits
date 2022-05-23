@@ -85,4 +85,3 @@ for (y in 1989:2021){
           a[a < 0] <- NA
           r <- terra::writeRaster(a, path_output, format="GTiff", overwrite=TRUE)
   }
-  

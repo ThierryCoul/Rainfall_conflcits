@@ -66,13 +66,13 @@ cd "../Output"
 * Importing excel GNI per capita from World Bank
 *************************************************	
 	
-****Download the GNI per capita data (World Bank: GNI per capita, PPP (constant 2017 international $))
+****Downloading the GNI per capita data (World Bank: GNI per capita, PPP (constant 2017 international $))
 	copy "https://api.worldbank.org/v2/en/indicator/NY.GNP.PCAP.PP.KD?downloadformat=excel" "../Temporary/GNI_per_capita.xls", replace
 
-****Import the data to stata
+****Importing the data to stata
 	import excel "../Temporary/GNI_per_capita.xls", clear sheet("Data") cellrange(A4)
 
-****Destring numeric values
+****Destringing numeric values
 	destring *, replace
 
 ****Displaying variables with numeric values
@@ -85,24 +85,24 @@ cd "../Output"
 		replace `var' = "gni_per_capita" + `var' in 1
 		}
 
-****Replace the variable name with first the row
+****Replacing the variable name with first the row
 	autorename *, row(1)
 
-****destring numeric values
+****destringing numeric values
 	destring *, replace
 
-****Keep useful variables
+****Keeping useful variables
 	keep countrycode gni_per_capita*
 
-****Reshape dataset from wide to long
+****Reshaping dataset from wide to long
 	reshape long gni_per_capita, i(countrycode) j(year)
 
-****Rename variables
+****Renaming variables
 	rename countrycode iso
 	rename gni_per_capita GNI_per_capita
 
 ****Saving the GNI_per_capita data
 	save GNI_per_capita_country, replace
 
-****Replace intermediary file
+****Replacing intermediary file
 	erase "../Temporary/GNI_per_capita.xls"

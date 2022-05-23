@@ -1,4 +1,4 @@
-**** Using the dataset for the regression analsyses
+****Using the dataset for the regression analsyses
 	use regression_file_annually, clear
 	*use replication_file_annually, clear
 	
@@ -138,6 +138,8 @@
 *********************************************
 *Table S9 : with lag values of precipitation
 *********************************************
+
+****  Model 13: Regressions with 1 lag variable
 	sort GID_1_encoded year
 	reghdfe conflict_incidence L(0/1).MEAN_Level, absorb(GID_1_encoded year) vce(cluster iso_encoded year)
 	outreg2 using "../../Manuscript/Regression_lags_year.doc", replace ctitle(Model 13) label addtext(Year FE, YES, Region FE, YES)	
@@ -145,12 +147,14 @@
 	reghdfe onset L(0/1).MEAN_Level, absorb(GID_1_encoded year) vce(cluster iso_encoded year)
 	outreg2 using "../../Manuscript/Regression_lags_year.doc", append ctitle(Model 13) label addtext(Year FE, YES, Region FE, YES)
 
+****  Model 14: Regressions with 1 lag variable as only variable
 	reghdfe conflict_incidence L.MEAN_Level, absorb(GID_1_encoded year) vce(cluster iso_encoded year)
 	outreg2 using "../../Manuscript/Regression_lags_year.doc", append ctitle(Model 14) label addtext(Year FE, YES, Region FE, YES)	
 
 	reghdfe onset L.MEAN_Level, absorb(GID_1_encoded year) vce(cluster iso_encoded year)
 	outreg2 using "../../Manuscript/Regression_lags_year.doc", append ctitle(Model 14) label addtext(Year FE, YES, Region FE, YES)
-	
+
+****  Model 15: Regressions with 10 lags observations
 	reghdfe conflict_incidence L(0/10).MEAN_Level, absorb(GID_1_encoded year) vce(cluster iso_encoded year)
 	outreg2 using "../../Manuscript/Regression_lags_year.doc", append ctitle(Model 15) label addtext(Year FE, YES, Region FE, YES)	
 

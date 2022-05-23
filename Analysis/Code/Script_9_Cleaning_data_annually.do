@@ -112,12 +112,12 @@ global wd_climate "`disk'"
 	* Labeling variables
 	label var z_Level "standardised values of Level per GID_1"
 	
-****Merge the HDI data with the conflicts data	
+****Merging the HDI data with the conflicts data	
 	merge 1:1 GID_1 year using HDI_data
 	drop if _merge==2
 	drop _merge
 
-****Merge data with GNI at the country levels
+****Merging data with GNI at the country levels
 	merge m:1 iso year using GNI_per_capita_country
 	drop if _merge==2
 	drop _merge
@@ -129,10 +129,10 @@ global wd_climate "`disk'"
 		label var ln_`var' "Logarithm of `var'"
 	}
 
-****Number of non-state conflicts
+****Generating a number of non-state conflicts variable
 	gen number_of_conflict = conflict_incidence
 
-****Conflict incidence	
+****Generating a number of conflict incidence variable
 	foreach var in conflict_incidence conflict_incidence_any {
 		replace `var' = 1 if `var' > 0
 		if "`var'" =="conflict_incidence_any" {
@@ -230,7 +230,7 @@ global wd_climate "`disk'"
 	* Dropping variables with no id
 	drop if missing(GID_1_encoded)
 	
-****Drop regions with unbalanced observations across the years 
+****Dropping regions with unbalanced observations across the years 
 	by GID_1_encoded (year), sort: gen obs_count = _N
 	tab GID_1 if obs_count < 33
 	drop if obs_count < 33
@@ -253,7 +253,7 @@ global wd_climate "`disk'"
 	label var peace_years "Number of years wihtout any conflict"
 	label var MEAN_Level "Mean precipiation"		
 
-****Display the number of conflict by GEO
+****Displaying the number of conflict by GEO
 	levelsof GEO, local(levels)
 	foreach l of local levels {
 	display "`l' Conflict incidences"
@@ -264,7 +264,7 @@ global wd_climate "`disk'"
 	di r(mean)*r(N)
 	}
 
-****Drop Europe and Ocenia because there are too few number of conflicts
+****Dropping Europe and Ocenia because there are too few number of conflicts
 	drop if GEO =="Europe" | GEO=="Oceania"
 	* Creating a dummy variable for every country
 	tab GEO, gen(Continent_)

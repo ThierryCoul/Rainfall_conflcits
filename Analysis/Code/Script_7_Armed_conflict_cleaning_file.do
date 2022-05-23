@@ -15,13 +15,13 @@ cd "$wd"
 	unzipfile ged211-dta.zip
 	erase ged211-dta.zip
 
-****Importing the UCDP data joined with the gadm dataset
+**** Importing the UCDP data joined with the gadm dataset
 	import excel "GID_1_joined_UCDP.xlsx", clear firstrow
 	* Saving the id of the intersection file
 		keep id year GID_1
 		save "../Temporary/GID_1_intersect_UCDP.dta", replace
 
-****Using the conflict file with more meaninfull variable names
+**** Using the conflict file with more meaninfull variable names
 	use "../Input/ged211-dta/ged211.dta", clear
 
 	*Destring the identifiers for the merging
@@ -30,7 +30,7 @@ cd "$wd"
 	*Merging the two conflicts dataset
 		merge 1:1 id year using "../Temporary/GID_1_intersect_UCDP.dta"
 	
-****Keeping useful variables
+**** Keeping useful variables
 	keep id year active_year type_of_violence conflict_new_id conflict_name dyad_new_id dyad_name side_a side_a_new_id side_b side_b_new_id region date_prec date_start date_end deaths_a deaths_b deaths_civilians best GID_1
 	rename id id_conflict
 	label var active_year "1-the event belongs to an active conflict/dyad/actor-year 0-otherwise"
@@ -57,7 +57,7 @@ cd "$wd"
 	label var month "month_conflict_start"
 	gen day = substr(date_start,9,2)
 	
-****Destring variables potentially necessary for the regression analyses
+**** Destring variables potentially necessary for the regression analyses
 	destring active_year month type_of_violence conflict_new_id dyad_new_id side_a_new_id side_b_new_id date_precision deaths_a deaths_b deaths_civilians total_deaths day, replace
 
 **** Saving the file
