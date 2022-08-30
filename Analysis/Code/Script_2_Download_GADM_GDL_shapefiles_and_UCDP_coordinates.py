@@ -11,8 +11,8 @@ work_dir = os.path.dirname(os.path.realpath(__file__))
 os.chdir(work_dir)
 
 # Importing GADM and GDL data
-Data_source_GDL = 'https://geodata.ucdavis.edu/gadm/gadm4.0/gadm404-shp.zip'
-Data_source_GADM = 'https://globaldatalab.org/assets/2020/03/GDL%20Shapefiles%20V4.zip'
+Data_source_GDL = 'https://globaldatalab.org/assets/2020/03/GDL%20Shapefiles%20V4.zip'
+Data_source_GADM = 'https://geodata.ucdavis.edu/gadm/gadm4.0/gadm404-shp.zip'
 Data_source_UCDP_GED_211 = 'https://ucdp.uu.se/downloads/ged/ged211-xlsx.zip'
 
 print('Looping over the shapefiles to be downloaded')

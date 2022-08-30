@@ -32,11 +32,11 @@ try:
     for i in ["annual","monthly"]:
         # Defining local variables
         if i =="annual":
-            Input_folder = "Temporary/Rainfall monthly"
-            Output_folder = "Zonal_stat_monthly"
-        else:
             Input_folder = "Temporary/Rainfall_annual"
             Output_folder = "Zonal_stat_annual"
+        else:
+            Input_folder = "Temporary/Rainfall_monthly"
+            Output_folder = "Zonal_stat_monthly"
 
         # Creating the directory of the output of zonal statistics
         parent_dir  = str(os.getcwd()) + "/Temporary/"

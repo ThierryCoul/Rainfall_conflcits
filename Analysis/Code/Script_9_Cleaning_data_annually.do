@@ -1,5 +1,5 @@
 *global wd "Thierry_MAC/Analysis/Output"
-*cd "$wd"
+cd "$wd"
 
 *************************************************
 * Importing the climatic variables in stata
@@ -19,6 +19,7 @@ global wd_climate "`disk'"
 		local time_id=subinstr("`noextension'","table_","",.)
 		keep GID_1 MEAN STD
 		rename STD Standard_deviation
+		rename Level
 		gen year =.
 		replace year = `time_id'
 		save "`noextension'", replace
@@ -31,8 +32,8 @@ global wd_climate "`disk'"
 	append using `theFiles'
 	
 	* Renaming the mean and std 
-	foreach var in MEAN Standard_deviation  {
-		rename `var' `var'_`type'
+	foreach var in MEAN Standard_deviation {
+		rename `var' `var'_Level
 	}
 	save precipiation_file_`type', replace
 
@@ -80,10 +81,9 @@ global wd_climate "`disk'"
 ****Generating a variable that shows the incidence of conflict
 	gen conflict_incidence = 1 if _merge== 3 & type_of_violence==2
 	replace conflict_incidence = 0 if _merge== 1 | type_of_violence!=2
-	label var conflict_incidence "1-Conflict Incidence 0-No  incidence"
+
 	gen conflict_incidence_any = 1 if _merge== 3
 	replace conflict_incidence_any = 0 if _merge== 1
-	label var conflict_incidence_any "1-Conflict incidence 0-No incidence"
 
 	drop _merge
 
@@ -100,6 +100,11 @@ global wd_climate "`disk'"
 ****Encoding countries for cluster analyses
 	encode iso, gen (iso_encoded)
 
+**** Relabelling variables of interest
+	label var conflict_incidence "1-Conflict Incidence 0-No  incidence"
+	label var conflict_incidence_any "1-Conflict incidence 0-No incidence"
+
+	
 ****Creating climatic anomalies based on long run average
 	* Creating the climatic mean per GID_1 for all year
 	bysort GID_1: egen mean_year_Level = mean(MEAN_Level)
@@ -154,30 +159,35 @@ global wd_climate "`disk'"
 		}
 
 		* Creating the conflict onset variable
-			gen onset`suffix' = 0
-			by GID_1_encoded (year), sort: replace onset`suffix' = 1 if `var'==1 & peace_years`suffix'[_n-1] >= 2 
+			gen onset`suffix'_2 = 0
+			by GID_1_encoded (year), sort: replace onset`suffix'_2 = 1 if `var'==1 & peace_years`suffix'[_n-1] >= 2 
 
+			gen onset`suffix'_5 = 0
+			by GID_1_encoded (year), sort: replace onset`suffix'_5 = 1 if `var'==1 & peace_years`suffix'[_n-1] >= 5
 	}
 	
 ****Saving the intermediary file
 	save regression_file_annually, replace
 	
 ****Merging ACLED dataset
-/* Download the ACLED data and input in the Output foder to run this part of the code 
+* Download the ACLED data and input in the Output foder to run this part of the code 
 	* Importing the ACLED data id and GID_1 from csv to stata
-	import excel "ACLED_Armed_conflicts.xlsx", clear firstrow
+	import excel "GID_1_joined_ACLED.xlsx", clear firstrow
 	
 	* Merging the ACLED id with the ACLED statistics
 	merge 1:1 data_id using Armed_conflicts_ACLED
 	drop if _merge==2
 	
 	* Dropping unusuable variables
-	drop admin* notes source_scale timestamp _merge longitude geo_precision latitude location region interaction inter2 assoc_actor_2 actor2 inter1 assoc_actor_1 actor1 time_precision event_date iso
+	*drop admin* notes source_scale timestamp _merge longitude geo_precision latitude location region interaction inter2 assoc_actor_2 actor2 inter1 assoc_actor_1 actor1 time_precision event_date iso
 	
 	* Checking the statistics of the ACLED data
 	table sub_event_type, c(mean fatalities)
 	table event_type, c(mean fatalities)
 	tab sub_event_type event_type
+	
+	* Keeping armed conflicts
+	keep if sub_event_type =="Armed clash" & fatalities > 0
 	
 	* Collapsing the data at the regional year level
 	collapse fatalities data_id, by(GID_1 year)
@@ -242,7 +252,8 @@ global wd_climate "`disk'"
 	label var GID_1_encoded "Unique code of the subnational region/province"
 	label var GID_1 "Unique code of the subnational region/province"
 	label var year "Year"
-	label var onset "Onset of a new conflict"
+	label var onset_2 "Onset of a new conflict in 2 years"
+	label var onset_2 "Onset of a new conflict in 5 years"
 	label var conflict_incidence "Conflict incidence"
 	label var total_deaths "Number of deaths"
 	label var GEO "Continental region"
@@ -251,7 +262,11 @@ global wd_climate "`disk'"
 	rename NAMES_STD Country
 	label var Country "Country"
 	label var peace_years "Number of years wihtout any conflict"
-	label var MEAN_Level "Mean precipiation"		
+	label var MEAN_Level "Mean precipiation"
+	label var ln_gnic "Log(income per capita)"
+	label var ln_pop "Log(population)"
+	label var ln_lifexp "Log(life expectancy)"
+	label var ln_GNI_per_capita "Log(national income per capita)"
 
 ****Displaying the number of conflict by GEO
 	levelsof GEO, local(levels)
@@ -260,7 +275,7 @@ global wd_climate "`disk'"
 	qui sum conflict_incidence if GEO =="`l'"
 	di r(mean)*r(N)
 	display "`l' Conflict onsets"
-	qui sum onset if GEO =="`l'"
+	qui sum onset_2 if GEO =="`l'"
 	di r(mean)*r(N)
 	}
 
@@ -269,5 +284,30 @@ global wd_climate "`disk'"
 	* Creating a dummy variable for every country
 	tab GEO, gen(Continent_)
 
+*****Saving the data
+	save regression_file_annually, replace
+	
+**** Joining the data to the world shapefile to perform spatial econometrics regressions
+	shp2dta using "..\Temporary\GADM_GID_1.shp", database("Coordinates_data.dta") coordinates("Coordinates_lat_long.dta") replace 
+	
+	use Coordinates_data, clear
+	merge 1:m GID_1 using "regression_file_annually.dta"
+	drop if _merge==1
+	xtset GID_1_encoded year
+	spset _ID
+	spset, modify shpfile(Coordinates_lat_long)
+	spset, modify coordsys(latlong, kilometers)
+	
+****Creating a variable describing the occurence of conflict in regions during the period of study
+	bysort GID_1: egen conflict_variation= mean(conflict_incidence)
+	bysort GID_1: egen onset_variation= mean(onset_2)
+	
+**** generatinng the number of peace years in the previous observations
+	by _ID (year), sort: gen L_peace_year = peace_years[_n - 1]
+
+****Generating non-conflict splines 
+	mkspline non_conflict_y_1 1 non_conflict_y_2 2 non_conflict_y_3 3 non_conflict_y_4 4 non_conflict_y_5 5 non_conflict_y_more_5 = peace_years, marginal
+
+	
 ****Saving the dataset for regressions at the yearly level
 	save regression_file_annually, replace

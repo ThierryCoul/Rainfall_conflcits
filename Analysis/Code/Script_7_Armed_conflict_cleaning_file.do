@@ -22,7 +22,7 @@ cd "$wd"
 		save "../Temporary/GID_1_intersect_UCDP.dta", replace
 
 **** Using the conflict file with more meaninfull variable names
-	use "../Input/ged211-dta/ged211.dta", clear
+	use "../Output/ged211.dta", clear
 
 	*Destring the identifiers for the merging
 		destring year, replace

@@ -1,0 +1,1 @@
+Replication data for analyses at the yearly and monthly levels are enclosed here.

@@ -21,7 +21,7 @@ arcpy.CheckOutExtension("spatial")
 
 ## Setting the inner variables
 print("Setting up the variables")
-GADM_shp = "Input/gadm/gadm404.shp"
+GADM_shp = "Input/GADM/gadm404.shp"
 GADM_GID_1_shp = "Temporary/GADM_GID_1.shp"
 GADM_GID_1_dbf = "Temporary/GADM_GID_1.dbf"
 input_centroids = os.getcwd() + "/" +GADM_GID_1_shp
@@ -36,27 +36,27 @@ GID_1_join_GDL_xls = os.getcwd() + "/" + "Output/GID_1_X_GDL_id.xlsx"
 ## Geoprocessing starts here ##
 try:
     ## Process: Dissolving the shapefile
-    print("Dissolving the shapefile fields")
+    print("Dissolving the shapefile fields to the first order of national administrative units (refered to as region)")
     arcpy.Dissolve_management(GADM_shp, GADM_GID_1_shp, zone_field)
 
     # Process: Generate the extent coordinates using Add Geometry Properties tool
-    print('Generating the centroids of the GADM shapefile')
+    print('Generating the centroids of the regions of GADM shapefile')
     factorycode = 4326
     cs = arcpy.SpatialReference(factorycode)
     arcpy.AddGeometryAttributes_management(input_centroids, "CENTROID", "KILOMETERS", "SQUARE_KILOMETERS", cs)
 
     # Merging the GDL maps with the GADM
     ## Process: Make xy event layer fo the GADM file
-    print("Make XY event layer from GADM to extract the centroids")
+    print("Make XY event layer of the the centroids of GADM regions (1/2)")
     arcpy.MakeXYEventLayer_management(input_XY_event_layer, "CENTROID_X", "CENTROID_Y", "gadm36_GID_1_Layer", cs, None)
 
     # Merging the GDL maps with the GADM
     ## Process: Make xy event layer fo the GADM file
-    print("Make XY event layer from GADM to extract the centroids")
+    print("Make XY event layer of the the centroids of GADM regions (2/2)")
     arcpy.management.CopyFeatures("gadm36_GID_1_Layer", GID_1_centroids)
 
     ## Process: Joining the centroids of the GADM layer witht GDL shapefile
-    print("Join GADM and GDL maps")
+    print("Join GADM regions information based on their centroids with the and GDL map (containing data of control variables)")
     arcpy.analysis.SpatialJoin(GID_1_centroids, GDL_shp, GID_1_join_GDL_shp, "JOIN_ONE_TO_ONE", "KEEP_ALL")
 
     ## Process: Exporting the output join to excel

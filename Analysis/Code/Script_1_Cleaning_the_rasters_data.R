@@ -25,7 +25,7 @@ if (file.exists(folder)) {
 for (y in 1989:2021){
   url <- paste("https://data.chc.ucsb.edu/products/CHIRPS-2.0/global_annual/tifs/chirps-v2.0.",y,".tif", sep  = "")
   destination <- paste("Temporary/Rainfall_annual/chirps_",y,".tif", sep ="")                    
-  download.file(url = url, destfile = destination)
+  download.file(url = url, destfile = destination, method = 'curl')
 }
 
 #Defining the list of rainfall data - Rainfall data source: https://chc.ucsb.edu/data
@@ -73,6 +73,8 @@ for (y in 1989:2021){
 
 ## Redefining NA values of precipitation values ----
   Grids_folder_input = "Temporary/Rainfall_monthly"
+  Grids_folder_output = "Temporary/Rainfall_monthly"
+
   grids <- list.files(Grids_folder_input, pattern = "*.tif$")
   for (i in grids){
     print(paste0("Working on ", i))  
@@ -83,5 +85,7 @@ for (y in 1989:2021){
           a <- setMinMax(a)
           a
           a[a < 0] <- NA
+          unlink(path_output)
           r <- terra::writeRaster(a, path_output, format="GTiff", overwrite=TRUE)
   }
+  

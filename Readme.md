@@ -14,13 +14,14 @@ If you find meaningful errors in the code or have questions or suggestions, plea
 * **Analysis/Temporary**: folder for data manipulation during the processing of the data.
 * **Analysis/Output**: folder for data after processing
 * **Analysis/Manuscript**: folder for output of regression analyses
-* **Analysis/Output/regression_file_CHIRPS_precipitation_monthly.dta **: Replication of main dataset for analysis at the monthly level.
-* **Analysis/Output/regression_file_CHIRPS_precipitation.dta **: Replication of main dataset for analysis at the annual level.
+* **Analysis/Output/regression_file_monthly.dta **: Replication of main dataset for analysis at the monthly level.
+* **Analysis/Output/regression_file_annually.dta **: Replication of main dataset for analysis at the annual level.
 
 
 ***Notes for replication:***
 
 * **A note about replication with ACLED and globaldatalab data**: Ideally we would like to provide replication materials for the entire pipeline beginning with the raw publicly available data and ending with the results presented in the manuscript. However, due to the [ACLED data use agreement](https://acleddata.com/data-export-tool/) and [global data lab use agreement](https://globaldatalab.org/), we cannot post their data in an online repository. Our replication data excludes data from these sources.
+
 ## Instructions
 
 ***Overview of the main replication materials:***
