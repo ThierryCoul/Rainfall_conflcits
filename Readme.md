@@ -14,8 +14,8 @@ If you find meaningful errors in the code or have questions or suggestions, plea
 * **Analysis/Temporary**: folder for data manipulation during the processing of the data.
 * **Analysis/Output**: folder for data after processing
 * **Analysis/Manuscript**: folder for output of regression analyses
-* **Analysis/Output/regression_file_monthly.dta **: Replication of main dataset for analysis at the monthly level.
-* **Analysis/Output/regression_file_annually.dta **: Replication of main dataset for analysis at the annual level.
+* **Analysis/Output/regression_file_monthly.dta**: Replication of main dataset for analysis at the monthly level.
+* **Analysis/Output/regression_file_annually.dta**: Replication of main dataset for analysis at the annual level.
 
 
 ***Notes for replication:***
