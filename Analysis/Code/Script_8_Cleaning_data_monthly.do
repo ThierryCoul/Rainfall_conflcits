@@ -27,7 +27,7 @@ global wd_climate "`disk'"
 		
 		save "`noextension'", replace
 	}
-	* Appending the precipiation files into one*
+	* Appending the precipitation files into one*
 	clear
 	local theFiles: dir . files "*.dta"
 	di `theFiles'
@@ -69,7 +69,8 @@ global wd_climate "`disk'"
 
 ****Using the panel data of rainfall as the reference
 	use Precipitation_panel_data_monthly, clear
-
+	keep if year <=2020
+	
 ****Merging with the data on conflicts (for each month of the year, we merge the regrion with all conflicts that occured)
 	merge 1:m GID_1 year month using Armed_conflicts_UCDP
 
@@ -86,6 +87,12 @@ global wd_climate "`disk'"
 	gen conflict_incidence_any = 1 if _merge== 3
 	replace conflict_incidence_any = 0 if _merge== 1
 	
+	gen conflict_incidence_state = 1 if _merge== 3 & type_of_violence==1
+	replace conflict_incidence_state = 0 if _merge== 1 | type_of_violence!=1
+
+	gen conflict_incidence_one_side = 1 if _merge== 3 & type_of_violence== 3
+	replace conflict_incidence_one_side = 0 if _merge== 1 | type_of_violence!=3
+	
 	drop _merge
 	
 ****Filling the values of observations with no region value
@@ -93,14 +100,16 @@ global wd_climate "`disk'"
 	
 ****Colapsing the dataset at the year level
 	collapse (mean) active_year MEAN_Level ///
-	(sum) conflict_incidence conflict_incidence_any total_deaths ///
+	(sum) conflict_incidence conflict_incidence_any conflict_incidence_state conflict_incidence_one_side total_deaths ///
 	(firstnm) time_identifer iso GID_1 NAMES_STD GEO ///
 	,by(GID_1_encoded year month)
-
 	
 ****Relabelling variables
 	label var conflict_incidence "1-Conflict Incidence 0-No  incidence"
-	label var conflict_incidence_any "1-Conflict incidence 0-No incidence"	
+	label var conflict_incidence_any "1-Conflict incidence 0-No incidence"
+	label var conflict_incidence_one_side "1-Conflict Incidence 0-No  incidence"
+	label var conflict_incidence_state "1-Conflict incidence 0-No incidence"	
+	
 	
 ****Creating climatic anomalies based on long run average
 	* Creating the climatic mean per GID_1 for all year
@@ -113,6 +122,10 @@ global wd_climate "`disk'"
 	drop mean_year_Level sd_year_Level
 	* Labeling variables
 	label var z_Level "standardised values of Level per GID_1"
+	
+****Creating a logarithmic variable of rainfall
+	gen log_Level = ln(MEAN_Level)
+	label var log_Level "Logarithm of Level per GID_1"
 	
 ****Merging the HDI data with the conflicts data	
 	merge m:1 GID_1 year using HDI_data
@@ -132,10 +145,16 @@ global wd_climate "`disk'"
 	gen number_of_conflict = conflict_incidence
 	
 ****Generating a conflict incidence and onset variable	
-	foreach var in conflict_incidence conflict_incidence_any {
+	foreach var in conflict_incidence_any conflict_incidence_state conflict_incidence_one_side conflict_incidence {
 		replace `var' = 1 if `var' > 0
-		if "`var'" =="conflict_incidence_any" {
+		if "`var'" =="conflict_incidence_state" {
+			local suffix = "_state"
+		}
+		else if "`var'" =="conflict_incidence_any" {
 			local suffix = "_any"
+		}
+		else if "`var'" =="conflict_incidence_one_side" {
+			local suffix = "_one_side"
 		}
 		else {
 			local suffix = ""
@@ -143,11 +162,11 @@ global wd_climate "`disk'"
 		* Creating a variable with the number without conflict
 			gen peace_years`suffix' =.
 			replace peace_years`suffix' = 0 if year == 1989
-			replace peace_years`suffix' = 0 if `var' == 0
-			replace peace_years`suffix' = 1 if year == 1989 & `var' == 1
+			replace peace_years`suffix' = 1 if `var' == 0
+			replace peace_years`suffix' = 0 if year == 1989 & `var' == 1
 
 		* Creating a variable with the number of years in peace
-			forvalues i=1990(1)2019{
+			forvalues i=1990(1)2020{
 				by GID_1_encoded (year), sort: replace peace_years`suffix' = 0 if `var' == 1 & year==`i'
 				by GID_1_encoded (year), sort: replace peace_years`suffix' = peace_years`suffix'[_n-1] + 1/12 if `var' == 0 & year==`i'
 			}
@@ -163,8 +182,8 @@ global wd_climate "`disk'"
 	
 ****Dropping regions with unbalanced observations across the years 
 	by GID_1_encoded (time_id), sort: gen obs_count = _N
-	tab GID_1 if obs_count < 396
-	drop if obs_count < 396
+	tab GID_1 if obs_count < 384
+	drop if obs_count < 384
 
 ****Saving the intermediary file
 	save regression_file_monthly, replace
@@ -248,7 +267,7 @@ global wd_climate "`disk'"
 	rename NAMES_STD Country
 	label var Country "Country"
 	label var peace_years "Number of years wihtout any conflict"
-	label var MEAN_Level "Mean precipiation"
+	label var MEAN_Level "Mean precipitation"
 	label var ln_gnic "Log(income per capita)"
 	label var ln_pop "Log(population)"
 	label var ln_lifexp "Log(life expectancy)"
@@ -290,9 +309,6 @@ global wd_climate "`disk'"
 	
 **** generatinng the number of peace years in the previous observations
 	by _ID (time_id), sort: gen L_peace_year = peace_years[_n - 1]
-	
-****Generating non-conflict splines 
-	mkspline non_conflict_y_5 5 non_conflict_y_10 10 non_conflict_y_15 15 non_conflict_y_20 20 non_conflict_y_25 25 non_conflict_y_more_25 = peace_years, marginal
 	
 ****Saving the dataset
 	save regression_file_monthly, replace
